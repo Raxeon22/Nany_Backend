@@ -30,7 +30,6 @@ router.post("/register/user", upload.single("file"), async (req, res) => {
     const { name, email, password } = req.body;
 
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    
 
     if (!(name && email && password)) {
       res
@@ -39,7 +38,6 @@ router.post("/register/user", upload.single("file"), async (req, res) => {
     } else if (!re.test(email)) {
       res.status(422).send({ message: "invlaid Email", success: false });
     } else {
-    
       authentication.findOne({ email: email }, async (err, data) => {
         if (data) {
           if (data.usertype != 3) {
@@ -89,7 +87,6 @@ router.post(
       const { name, email, password } = req.body;
 
       var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-      
 
       if (!(name && email && password)) {
         res
@@ -98,7 +95,7 @@ router.post(
       } else if (!re.test(email)) {
         res.status(422).send({ message: "invlaid Email", success: false });
       } else {
-        authentication.findOne({ email: email },async (err, data) => {
+        authentication.findOne({ email: email }, async (err, data) => {
           if (data) {
             if (data.usertype != 2) {
               res.status(200).send({
@@ -144,7 +141,6 @@ router.post("/register/admin", upload.array("file"), async (req, res) => {
   try {
     const { name, email, password } = req.body;
     var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    
 
     if (!(name && email && password)) {
       res
@@ -197,7 +193,7 @@ router.post("/register/admin", upload.array("file"), async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
+console.log(req.body);
     if (!(email && password)) {
       res
         .status(200)
@@ -214,7 +210,6 @@ router.post("/login", async (req, res) => {
         });
       } else {
         res.status(200).send({
-          
           message: "Invalid email or password",
           success: false,
         });
@@ -224,7 +219,26 @@ router.post("/login", async (req, res) => {
     res.status(400).send({ message: err.message, success: false });
   }
 });
+router.get("/Dashboard/:id", (req, res) => {
+  try {
+    
+    console.log(req.params)
+    
+    const {id} = req.params;
+    authentication.findOne({ _id:id },(err,result)=>{
+      if(err){
+    res.status(400).send({ message: err.message, success: false });
 
+      }else{
+    res.status(200).send({ Data:result,message: "Data get Successfull", success: true });
+
+      }
+    }); 
+
+  } catch (err) {
+    res.status(400).send({ message: err.message, success: false });
+  }
+});
 //otpsend
 router.post("/otpsend", async (req, res) => {
   try {

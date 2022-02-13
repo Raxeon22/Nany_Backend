@@ -43,14 +43,36 @@ router.post("/", async (req, res) => {
         </html>`
       };
 
-      await transporter.sendMail(mailOption, (err, info) => {
+      await transporter.sendMail(mailOption, async (err, info) => {
         if (err) {
           res.send(err);
         } else {
+          const mailOption = {
+            from: process.env.email,
+            to: process.env.email, // sender address
+            subject: "Contact ", // Subject line
+            html: `<html>
+            <p>
+            first_name: ${first_name}</p>
+            <p>last_name: ${last_name}</p>
+            <p>mobile: ${mobile}</p>
+            <p>email: ${email}</p>
+            <p>way_to_use: ${way_to_use}</p>
+            <p>message: ${message}</p>
+            </html>`
+          };
+          await transporter.sendMail(mailOption, (err, info) => {
+            if (err) {
+              res.send(err);
+            } else {
+    
           res
             .status(200)
-            .send({ message: "Email send Successfully", success: true });
+            .send({ message: "Email send Successfully", success: true });        }
+          });
         }
+    
+        
       });
     }
   } catch (err) {

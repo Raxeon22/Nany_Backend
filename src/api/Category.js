@@ -22,27 +22,36 @@ var upload = multer({ storage: storage });
 
 router.post("/", upload.single("file"), async (req, res) => {
   try {
-    const { text, heading } = req.body;
+    const { text} = req.body;
+    const heading = req.body.heading.toLowerCase()
 
-    
-    
     if (!(text && heading)) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      if (req.file) {
-        await uploadFile(req.file);
-        req.body.image = req.file.filename;
-      }
-  
-      const Category = new category(req.body);
-      Category.save().then((item) => {
-        res.status(200).send({
-          message: "Data save into Database",
-          data: item,
-          success: true,
-        });
+      category.findOne({ heading: heading }, async (err, result) => {
+        if (err) {
+          res.status(200).send({
+            message: "Category already exist",
+
+            success: false,
+          });
+        } else {
+          if (req.file) {
+            await uploadFile(req.file);
+            req.body.image = req.file.filename;
+          }
+
+          const Category = new category(req.body);
+          Category.save().then((item) => {
+            res.status(200).send({
+              message: "Data save into Database",
+              data: item,
+              success: true,
+            });
+          });
+        }
       });
     }
   } catch (err) {
@@ -91,7 +100,6 @@ router.delete("/", async (req, res) => {
     } else {
       category.find({ _id: id }, (err, result) => {
         if (result) {
-        
           category.deleteOne({ _id: id }, (err, val) => {
             if (!val) {
               res.status(200).send({ message: err.message, success: false });

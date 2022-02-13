@@ -74,27 +74,40 @@ router.put("/:id", upload.array("file"), async (req, res) => {
           res.status(200).send({ message: "Data Not Exist", success: false });
         } else {
           var value = Object.values(req.body);
-          var body = [];
-          if (req.files.length > 0) {
+          var body = {};
+          if (req.files) {
             req.files.map(async (item, index) => {
               if (value[index]) {
                 body[value[index]] = item.filename;
                 await uploadFile(item);
               }
             });
+            
+            about.updateOne({ _id: id }, body, (err, result) => {
+              if (err) {
+                res.status(200).send({ message: err.message, success: false });
+              } else {
+                res.status(200).send({
+                  message: "Data updated Successfully",
+                  success: true,
+                  data: result,
+                });
+              }
+            });
+          }else{
+            about.updateOne({ _id: id }, req.body, (err, result) => {
+              if (err) {
+                res.status(200).send({ message: err.message, success: false });
+              } else {
+                res.status(200).send({
+                  message: "Data updated Successfully",
+                  success: true,
+                  data: result,
+                });
+              }
+            });
           }
 
-          about.updateOne({ _id: id }, body, (err, result) => {
-            if (err) {
-              res.status(200).send({ message: err.message, success: false });
-            } else {
-              res.status(200).send({
-                message: "Data updated Successfully",
-                success: true,
-                data: result,
-              });
-            }
-          });
         }
       });
     }

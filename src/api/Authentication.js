@@ -193,7 +193,7 @@ router.post("/register/admin", upload.array("file"), async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-console.log(req.body);
+
     if (!(email && password)) {
       res
         .status(200)
@@ -221,20 +221,18 @@ console.log(req.body);
 });
 router.get("/Dashboard/:id", (req, res) => {
   try {
-    
-    console.log(req.params)
-    
-    const {id} = req.params;
-    authentication.findOne({ _id:id },(err,result)=>{
-      if(err){
-    res.status(400).send({ message: err.message, success: false });
-
-      }else{
-    res.status(200).send({ Data:result,message: "Data get Successfull", success: true });
-
+    const { id } = req.params;
+    authentication.findOne({ _id: id }, (err, result) => {
+      if (err) {
+        res.status(400).send({ message: err.message, success: false });
+      } else {
+        res.status(200).send({
+          Data: result,
+          message: "Data get Successfull",
+          success: true,
+        });
       }
-    }); 
-
+    });
   } catch (err) {
     res.status(400).send({ message: err.message, success: false });
   }
@@ -295,20 +293,31 @@ router.post("/otpsend", async (req, res) => {
 });
 
 //updateprofile
-router.post("/updateprofile", async (req, res) => {
+router.put("/updateprofile/:id", async (req, res) => {
   try {
-    const id = req.user.user._id || req.query;
+    const id = req.params.id;
     if (!id) {
       res.status(200).send({ message: "id is not valid ", success: false });
     } else {
-      authentication.updateOne({ _id: id }, req.body, (err, result) => {
+      authentication.findOne({ _id: id }, (err, result) => {
         if (err) {
-          res.status(200).send({ message: "Updation Error!", success: false });
-        } else {
           res.status(200).send({
-            message: "Updation Successfull",
-            token: tokengenerate({ user: req.user.user }),
-            success: true,
+            message: err.message,
+            success: false,
+          });
+        } else {
+          authentication.updateOne({ _id: id }, req.body, (err, result) => {
+            if (err) {
+              res
+                .status(200)
+                .send({ message: "Updation Error!", success: false });
+            } else {
+              res.status(200).send({
+                message: "Updation Successfull",
+                token: tokengenerate({ user: result }),
+                success: true,
+              });
+            }
           });
         }
       });

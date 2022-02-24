@@ -108,17 +108,29 @@ router.post("/", async (req, res) => {
           attachments: [{ filename: "invoice.pdf", path: "./invoice.pdf" }],
         };
 
-        await transporter.sendMail(mailOption, (err, info) => {
+        await transporter.sendMail(mailOption,async(err, info) => {
           if (err) {
             res.send(err);
           } else {
-            const Booking = new Order(order);
-            Booking.save().then((item) => {
-              res.status(200).send({
-                message: "Data save into Database",
-                data: item,
-                success: true,
-              });
+            const mailOption = {
+              from: process.env.email,
+              to: process.env.email, // sender address
+              subject: "Invoice for your order", // Subject line
+              attachments: [{ filename: "invoice.pdf", path: "./invoice.pdf" }],
+            };
+            await transporter.sendMail(mailOption, (err, info) => {
+              if (err) {
+                res.send(err);
+              } else {
+                const Booking = new Order(order);
+                Booking.save().then((item) => {
+                  res.status(200).send({
+                    message: "Data save into Database",
+                    data: item,
+                    success: true,
+                  });
+                });
+              }
             });
           }
         });
@@ -176,7 +188,6 @@ router.delete("/", async (req, res) => {
 router.get("/", async (req, res) => {
   try {
     if (req.query) {
-      
       Order.find(req.query, (err, result) => {
         if (!result) {
           res.status(200).send({ message: err.message, success: false });
@@ -189,7 +200,6 @@ router.get("/", async (req, res) => {
         }
       });
     } else {
-      
       Order.find({}, (err, result) => {
         if (!result) {
           res.status(200).send({ message: "Data Not Exist", success: false });

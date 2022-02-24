@@ -3,6 +3,7 @@ const banner = mongoose.Schema(
   {
     tag:String,
     image: String,
+    lang: String
   },
   { timestamps: true }
 );

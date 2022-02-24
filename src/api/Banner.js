@@ -68,10 +68,12 @@ router.post("/mobile", upload.single("file"), async (req, res) => {
 });
 router.post("/app", upload.single("file"), async (req, res) => {
   try {
+    console.log(req.body.lan);
     if (req.file) {
       await uploadFile(req.file);
       req.body.image = req.file.filename;
       req.body.tag = "app";
+      
       const Banner = new banner(req.body);
       Banner.save().then((item) => {
         res.status(200).send({

@@ -8,14 +8,22 @@ const booking = mongoose.Schema(
     city: String,
     country: String,
     postalCode: Number,
+    serviceid:String,
+    employeeid:String,
     from: String,
     to: String,
     timein: String,
     timeout: String,
-    nany: [
+    employeeid: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "auth",
+      },
+    ],
+    serviceid:[
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "service",
       },
     ],
     user: [

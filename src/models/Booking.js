@@ -32,7 +32,9 @@ const booking = mongoose.Schema(
         ref: "auth",
       },
     ],
-
+    userstart:Boolean,
+    employeestart:Boolean,
+    start:Boolean,
     comment: String,
     status: String,
   },

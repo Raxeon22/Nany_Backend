@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const booking = require("../models/Booking");
-const {  verifytoken } = require("../middleware/auth");
+const { verifytoken } = require("../middleware/auth");
 const nodemailer = require("nodemailer");
 const service = require("../models/Service");
 
@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
       email,
       mobile,
       address,
-      city,      
+      city,
       serviceid,
       from,
       to,
@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
         address &&
         city &&
         country &&
-        serviceid&&
+        serviceid &&
         postalCode &&
         from &&
         to &&
@@ -46,48 +46,52 @@ router.post("/", async (req, res) => {
         .status(200)
         .send({ message: "All input is required", success: false });
     } else {
-      
-      service.findOne({_id:serviceid},async (err,result)=>{
-      let transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        requireTLS: false,
 
-        auth: {
-          user: process.env.email, // generated ethereal user
-          pass: process.env.password, // generated ethereal password
-        },
-      });
+      service.findOne({ _id: serviceid }, async (err, result) => {
+        let transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 587,
+          secure: false,
+          requireTLS: false,
+
+          auth: {
+            user: process.env.email, // generated ethereal user
+            pass: process.env.password, // generated ethereal password
+          },
+        });
 
         const mailOption = {
           from: process.env.email,
           to: email, // sender address
           subject: "Your Booking is booked wait for futher process", // Subject line
-          html: "<p>Your order for " + `${result.heading}` +" from "+ `${from}`+" to "+`${to}`+" at "+`${timestart}`+" - "+`${timeend}`+" is sucessfully booked"
+          html: "<p>Your order for " + `${result.heading}` + " from " + `${from}` + " to " + `${to}` + " at " + `${timestart}` + " - " + `${timeend}` + " is sucessfully booked"
         };
-        
-        
-        await transporter.sendMail(mailOption,async(err, info) => {
-        if (err) {
-          res.send(err);
-        } else {
-          req.body.status = "Pending";
-          const Booking = new booking(req.body);
-          Booking.save().then((item) => {
-            res.status(200).send({
-              message: "Data save into Database",
-              data: item,
-              success: true,
+
+
+        await transporter.sendMail(mailOption, async (err, info) => {
+          if (err) {
+            res.send(err);
+          } else {
+            req.body.status = "Pending";
+            req.body.start = false;
+            req.body.userstart = false;
+            req, body.employeeid = false;
+            const Booking = new booking(req.body);
+            Booking.save().then((item) => {
+              res.status(200).send({
+                message: "Data save into Database",
+                data: item,
+                success: true,
+              });
             });
-          });
-          
-        }})
-       })
-        
-      }
-    } catch (err) {
-      res.status(400).json({ message: err.message, success: false });
+
+          }
+        })
+      })
+
+    }
+  } catch (err) {
+    res.status(400).json({ message: err.message, success: false });
   }
 });
 router.put("/:id", async (req, res) => {
@@ -137,7 +141,7 @@ router.delete("/", async (req, res) => {
               res.status(200).send({
                 message: "Data deleted Successfully",
                 success: true,
-                
+
               });
             }
           });
@@ -183,7 +187,7 @@ router.get("/", async (req, res) => {
 router.put("/acceptbooking/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    booking.findOne({ _id: id ,status:"Pending"}, (err, result) => {
+    booking.findOne({ _id: id, status: "Pending" }, (err, result) => {
       if (!result) {
         res.status(200).send({ message: "Data Not Exist", success: false });
       } else {
@@ -228,31 +232,31 @@ router.put("/rejectbooking/:id", async (req, res) => {
 router.put("/assignbooking/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const {employeeid} = req.body;
-    if(!employeeid){
+    const { employeeid } = req.body;
+    if (!employeeid) {
       res
         .status(200)
         .send({ message: "All input is required", success: false });
 
-    }else{
+    } else {
 
       booking.findOne({ _id: id, status: "Accepted" }, (err, result) => {
         if (!result) {
           res.status(200).send({ message: "Data Not Exist", success: false });
-      } else {
-        booking.updateOne({ _id: id }, { status: "Assigned",employeeid:employeeid }, (err, value) => {
-          if (err) {
-            res.status(200).json({ message: err.message, success: false });
-          } else {
-            res
-              .status(200)
-              .json({ message: "booking Assign Successfully", success: false });
+        } else {
+          booking.updateOne({ _id: id }, { status: "Assigned", employeeid: employeeid }, (err, value) => {
+            if (err) {
+              res.status(200).json({ message: err.message, success: false });
+            } else {
+              res
+                .status(200)
+                .json({ message: "booking Assign Successfully", success: false });
             }
           });
         }
       });
     }
-    } catch (err) {
+  } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }
 });
@@ -263,7 +267,7 @@ router.put("/cancelbooking/:id", async (req, res) => {
       if (!result) {
         res.status(200).send({ message: "Data Not Exist", success: false });
       } else {
-        if(result.status== "Accepted" || result.status== "Pending" || result.status== "Assigned") {
+        if (result.status == "Accepted" || result.status == "Pending" || result.status == "Assigned") {
 
           booking.updateOne(
             { _id: id },
@@ -273,17 +277,17 @@ router.put("/cancelbooking/:id", async (req, res) => {
                 res.status(200).json({ message: err.message, success: false });
               } else {
                 res
-                .status(200)
-                .json({ message: "booking Cancelled", success: false });
+                  .status(200)
+                  .json({ message: "booking Cancelled", success: false });
               }
             }
-            );
-          }else{
-            res
+          );
+        } else {
+          res
             .status(200)
             .json({ message: "Booking cannot be Cancelled", success: false });
-          }
         }
+      }
     });
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
@@ -292,7 +296,7 @@ router.put("/cancelbooking/:id", async (req, res) => {
 router.put("/completebooking/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    booking.findOne({ _id: id ,status:"Assigned"}, (err, result) => {
+    booking.findOne({ _id: id, status: "Assigned" }, (err, result) => {
       if (!result) {
         res.status(200).send({ message: "Data Not Exist", success: false });
       } else {
@@ -316,5 +320,127 @@ router.put("/completebooking/:id", async (req, res) => {
     res.status(400).json({ message: err.message, success: false });
   }
 });
+router.put('/start/:user/:id', (req, res) => {
+  try {
+    const { user, id } = req.params
 
+    if (user == "user") {
+      booking.findOne({ _id: id }, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: "Data Not Exist", success: false });
+        } else {
+
+          if (result.employeestart == true) {
+            booking.updateOne(
+              {
+                "_id": id
+                , "start": true,
+                "userstart":true
+
+              },
+              (err, value) => {
+                if (err) {
+                  res.status(200).json({ message: err.message, success: false });
+                } else {
+                  res.status(200).json({
+                    message: "Service start Successfully",
+                    success: false,
+                  });
+                }
+              }
+            );
+          } else {
+            booking.updateOne(
+              {
+                "_id": id
+                , "userstart": true
+              },
+              (err, value) => {
+                if (err) {
+                  res.status(200).json({ message: err.message, success: false });
+                } else {
+                  res.status(200).json({
+                    message: "Service start Successfully",
+                    success: false,
+                  });
+                }
+              }
+            );
+          }
+          
+
+        }
+      });
+    } else if (user == "employee") {
+
+      booking.findOne({ _id: id }, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: "Data Not Exist", success: false });
+        } else {
+          if (result.userstart == true) {
+            booking.updateOne(
+              {
+                "_id": id
+                , "start": true,
+                "employeestart": true
+              },
+              (err, value) => {
+                if (err) {
+                  res.status(200).json({ message: err.message, success: false });
+                } else {
+                  res.status(200).json({
+                    message: "Service start Successfully",
+                    success: false,
+                  });
+                }
+              }
+            );
+          } else {
+            booking.updateOne(
+              {
+                "_id": id
+                , "employeestart": true
+              },
+              (err, value) => {
+                if (err) {
+                  res.status(200).json({ message: err.message, success: false });
+                } else {
+                  res.status(200).json({
+                    message: "Service start Successfully",
+                    success: false,
+                  });
+                }
+              }
+            );
+          }
+
+        }
+      });
+    } else if (user == "admin") {
+      booking.findOne({ _id: id }, (err, result) => {
+        if (!result) {
+          res.status(200).send({ message: "Data Not Exist", success: false });
+        } else {
+          booking.updateOne(
+            { _id: id },
+            { start: true },
+            (err, value) => {
+              if (err) {
+                res.status(200).json({ message: err.message, success: false });
+              } else {
+                res.status(200).json({
+                  message: "Service start Successfully",
+                  success: false,
+                });
+              }
+            }
+          );
+        }
+      });
+    }
+
+  } catch (err) {
+    res.status(400).json({ message: err.message, success: false });
+  }
+})
 module.exports = router;

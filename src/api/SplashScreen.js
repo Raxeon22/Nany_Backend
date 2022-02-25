@@ -73,6 +73,7 @@ router.put("/:id", upload.single("file"), async (req, res) => {
 router.delete("/", async (req, res) => {
   try {
     const { id } = req.query;
+    console.log(id);
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {

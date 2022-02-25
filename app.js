@@ -69,7 +69,7 @@ const setting = require("./src/api/setting");
 const smtp = require("./src/api/smtp");
 const booking = require("./src/api/Booking");
 const query = require("./src/api/Queries");
-const splashscreen = require("./src/api/SplashScreen");
+// const splashscreen = require("./src/api/SplashScreen");
 const attribute = require('./src/api/Attribute')
 const color = require('./src/api/Colors')
 const customer = require('./src/api/Customer')
@@ -100,7 +100,7 @@ app.use("/setting", setting);
 app.use("/smtp", smtp);
 app.use("/booking", booking);
 app.use("/query", query);
-app.use("/splashscreen", splashscreen);
+// app.use("/splashscreen", splashscreen);
 app.use("/attribute", attribute)
 app.use("/color", color)
 

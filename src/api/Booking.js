@@ -4,6 +4,7 @@ const booking = require("../models/Booking");
 const { verifytoken } = require("../middleware/auth");
 const nodemailer = require("nodemailer");
 const service = require("../models/Service");
+const authentication = require("../models/Auth");
 
 
 router.post("/", async (req, res) => {
@@ -15,13 +16,13 @@ router.post("/", async (req, res) => {
       address,
       city,
       serviceid,
-      from,
-      to,
-      timestart,
-      timeend,
+      userid,
+      startdate,
+      enddate,
+      starttime,
+      endtime,
       country,
       postalCode,
-      user,
       comment,
     } = req.body;
 
@@ -35,11 +36,11 @@ router.post("/", async (req, res) => {
         country &&
         serviceid &&
         postalCode &&
-        from &&
-        to &&
-        timestart &&
-        timeend &&
-        user
+        startdate &&
+        enddate &&
+        starttime &&
+        endtime&&
+        userid
       )
     ) {
       res
@@ -48,6 +49,8 @@ router.post("/", async (req, res) => {
     } else {
 
       service.findOne({ _id: serviceid }, async (err, result) => {
+      
+
         let transporter = nodemailer.createTransport({
           host: "smtp.gmail.com",
           port: 587,
@@ -64,7 +67,7 @@ router.post("/", async (req, res) => {
           from: process.env.email,
           to: email, // sender address
           subject: "Your Booking is booked wait for futher process", // Subject line
-          html: "<p>Your order for " + `${result.heading}` + " from " + `${from}` + " to " + `${to}` + " at " + `${timestart}` + " - " + `${timeend}` + " is sucessfully booked"
+          html: "<p>Your order for " + `${result.heading}` + " from " + `${startdate}` + " to " + `${enddate}` + " at " + `${starttime}` + " - " + `${endtime}` + " is sucessfully booked"         
         };
 
 
@@ -75,19 +78,27 @@ router.post("/", async (req, res) => {
             req.body.status = "Pending";
             req.body.start = false;
             req.body.userstart = false;
-            req, body.employeeid = false;
-            const Booking = new booking(req.body);
-            Booking.save().then((item) => {
-              res.status(200).send({
-                message: "Data save into Database",
-                data: item,
-                success: true,
+            req.body.employeestart = false;
+            booking.find({},async (err,result)=>{              
+            let invoiceid =
+                (await result[result.length - 1]?result[result.length - 1].invoiceid:-1) > 0
+                ?( result[result.length - 1].invoiceid + 1)
+                : 200;
+              req.body.invoiceid=invoiceid;
+              
+              const Booking = new booking(req.body);
+              Booking.save().then((item) => {
+                res.status(200).send({
+                  message: "Data save into Database",
+                  data: item,
+                  success: true,
+                });
               });
-            });
+            })
 
           }
-        })
-      })
+        
+      })})
 
     }
   } catch (err) {
@@ -125,12 +136,12 @@ router.put("/:id", async (req, res) => {
 router.delete("/", async (req, res) => {
   try {
     const { id } = req.query;
-    console.log(id);
+    
     if (!id) {
       res.status(200).send({ message: "id is not specify", success: false });
     } else {
       booking.findOne({ _id: id }, (err, result) => {
-        console.log(result);
+        
         if (!result) {
           res.status(200).send({ message: "Data not exist", success: false });
         } else {
@@ -154,31 +165,16 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    if (!req.query) {
-      booking.find({}, (err, result) => {
-        if (!result) {
-          res.status(200).send({ message: "Data Not Exist", success: false });
-        } else {
-          res.status(200).send({
-            message: "Data get Successfully",
-            success: true,
-            data: result,
-          });
-        }
-      });
-    } else {
-      booking.find(req.query, (err, result) => {
-        if (!result) {
-          res.status(200).send({ message: "Data Not Exist", success: false });
-        } else {
-          res.status(200).send({
-            message: "Data get Successfully",
-            success: true,
-            data: result,
-          });
-        }
-      });
-    }
+    let data = await booking.find(req.query).populate("serviceid").populate('userid').populate('employeeid')
+      if (!data) {
+        res.status(200).send({ message: "Data Not Exist", success: false });
+      } else {
+        res.status(200).send({
+          message: "Data get Successfully",
+          success: true,
+          data: data
+        });
+      }    
   } catch (err) {
     res.status(400).json({ message: err.message, success: false });
   }

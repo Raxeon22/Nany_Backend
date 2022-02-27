@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 const { uploadFile } = require("../middleware/s3");
-const { log } = require("console");
+
 router.post("/", upload.array("file"), async (req, res) => {
   try {
     const { name, category, price, quantity } = req.body;
@@ -34,7 +34,7 @@ router.post("/", upload.array("file"), async (req, res) => {
 
     req.body.color = JSON.parse(req.body.color);
     req.body.size = JSON.parse(req.body.size);
-console.log(req.body.size);
+
     if (!(name && category && price)) {
       res
         .status(200)
@@ -68,7 +68,7 @@ router.put("/:id", upload.array("file"), async (req, res) => {
             result.image ? fs.unlink(result.image[0], () => {}) : null;
             req.body.image = req.files[0].filename;
           }
-          console.log(req.body);
+          
           product.updateOne({ _id: id }, req.body, (err, result) => {
             if (err) {
               res.status(200).send({ message: err.message, success: false });

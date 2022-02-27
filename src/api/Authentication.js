@@ -193,7 +193,7 @@ router.post("/register/admin", upload.array("file"), async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-console.log(req.body);
+
     if (!(email && password)) {
       res
         .status(200)

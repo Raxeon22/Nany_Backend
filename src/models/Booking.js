@@ -7,34 +7,31 @@ const booking = mongoose.Schema(
     address: String,
     city: String,
     country: String,
-    postalCode: Number,
-    serviceid:String,
-    employeeid:String,
-    from: String,
-    to: String,
-    timein: String,
-    timeout: String,
+    postalCode: Number,    
+    startdate: String,
+    enddate: String,
+    starttime: String,
+    endtime: String,
+    invoiceid:Number,
     employeeid: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "auth",
       },
     ],
-    serviceid:[
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "service",
-      },
-    ],
-    user: [
+    serviceid: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "service",
+    },],
+    userid: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "auth",
       },
     ],
-    userstart:Boolean,
-    employeestart:Boolean,
-    start:Boolean,
+    userstart: Boolean,
+    employeestart: Boolean,
+    start: Boolean,
     comment: String,
     status: String,
   },

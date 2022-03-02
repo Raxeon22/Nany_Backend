@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const booking = mongoose.Schema(
   {
-    name: String,
+    firstName: String,
+    lastName: String,
     email: String,
     mobile: Number,
     address: String,

@@ -10,7 +10,8 @@ const authentication = require("../models/Auth");
 router.post("/", async (req, res) => {
   try {
     const {
-      name,
+      firstName,
+      lastName,
       email,
       mobile,
       address,
@@ -28,7 +29,8 @@ router.post("/", async (req, res) => {
 
     if (
       !(
-        name &&
+        firstName &&
+        lastName&&
         email &&
         mobile &&
         address &&
@@ -165,7 +167,11 @@ router.delete("/", async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    let data = await booking.find(req.query).populate("serviceid").populate('userid').populate('employeeid')
+    const {page, limit}= req.query;
+    const offset= (page-1) * limit;
+    
+    let data = await booking.find(req.query).populate("serviceid").populate('userid').populate('employeeid');
+
       if (!data) {
         res.status(200).send({ message: "Data Not Exist", success: false });
       } else {
